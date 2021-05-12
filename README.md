@@ -1,3 +1,8 @@
+Code was rewritten for use with USB SPI programmer based on FT2232C/H or FT4232H chips.
+Use FTDI D2XX drivers: https://ftdichip.com
+
+Original README below:
+
 **Table of Contents**
 
 * [CSR BlueCore USB SPI programmer/debugger](#csr-bluecore-usb-spi-programmerdebugger)
