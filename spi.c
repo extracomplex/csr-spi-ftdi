@@ -17,10 +17,10 @@
 
 /*
  * FTDI SPI pins in HW mode:
- * PA/PB - SCK
- * PA/PB - MOSI
- * PA/PB - MISO
- * PA3/PB3  - nCS
+ * PA0/PB0 - SCK
+ * PA1/PB1 - MOSI
+ * PA2/PB2 - MISO
+ * PA3/PB3 - nCS
  *
  * !!! CSR chips require 3V3 or 1V8 I/O level. !!!
  */

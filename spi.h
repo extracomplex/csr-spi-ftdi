@@ -7,9 +7,6 @@
 
 #include <stdint.h>
 
-#define VERSION "0.5.0"
-#define GIT_REVISION "UNDEFINED"
-
 /* Bit field */
 #define SPI_XFER_READ   (1 << 0)
 #define SPI_XFER_WRITE  (1 << 1)
