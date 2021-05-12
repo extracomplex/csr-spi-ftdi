@@ -3,18 +3,17 @@
 # Use mingw-w64
 TOOLCHAIN ?= i686-w64-mingw32-
 
-LIBFTDI ?=	./libftdi1
-LIBUSB ?=	./libusb
+LIBFTDI ?=	./ftdi
 
 # Print scr-spi-ftdi statistics before exit
-CPPFLAGS +=	-DSPI_STATS
+#CPPFLAGS +=	-DSPI_STATS
 # Enable LEDs
-CPPFLAGS += -DENABLE_LEDS
+#CPPFLAGS += -DENABLE_LEDS
 
 # Fixes compilation on Debian/Ubuntu with mingw-w64 < 3.0.
 # See: http://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/4F8CA26A.70103@users.sourceforge.net/
 #CPPFLAGS +=	-DCOMPAT_MINGW_MS_VSNPRINTF
-CPPFLAGS +=	-DCOMPAT_TIMER_MACROS
+#CPPFLAGS +=	-DCOMPAT_TIMER_MACROS
 
 # Compile with debugging
 #CFLAGS += -g -fno-inline
@@ -34,13 +33,7 @@ CFLAGS +=	-m32 -Wall
 CXXFLAGS += -fno-exceptions
 LDFLAGS +=	-shared -m32 -O2 -static
 
-CPPFLAGS +=	-I$(LIBFTDI)/include/libftdi1
-LDFLAGS  += -L$(LIBFTDI)/lib
-LDLIBS   += -lftdi1
-
-CPPFLAGS +=	-I$(LIBUSB)/include
-LDFLAGS  += -L$(LIBUSB)/MinGW32/static
-LDLIBS   += -lusb-1.0
+CPPFLAGS +=	-I$(LIBFTDI)/include
 
 MAKEFILE =	$(firstword $(MAKEFILE_LIST))
 
@@ -49,17 +42,25 @@ OBJDIR =	obj-win32
 LIBNAME =	usbspi.dll
 LIBRARY_DEF =	usbspi.dll.def
 
+VPATH += $(LIBFTDI)
+
 all: $(LIBDIR)/$(LIBNAME)
 
 $(OBJDIR)/basics.o: spi.h spifns.h logging.h dllmain.h compat.h
 $(OBJDIR)/spi.o: spi.h compat.h logging.h
 $(OBJDIR)/logging.o: logging.h compat.h
 
+$(OBJDIR)/ftdi_common.o: ftdi_infra.h ftdi_common.h
+$(OBJDIR)/ftdi_infra.o: ftdi_infra.h
+$(OBJDIR)/ftdi_mid.o: ftdi_infra.h ftdi_common.h ftdi_mid.h 
+$(OBJDIR)/ftdi_spi.o: ftdi_infra.h ftdi_common.h ftdi_spi.h ftdi_mid.h
+$(OBJDIR)/ftdi_i2c.o: ftdi_infra.h ftdi_common.h ftdi_i2c.h ftdi_mid.h
+
 $(LIBDIR)/$(LIBNAME): $(OBJDIR)/$(LIBNAME)
 	mkdir -p $(LIBDIR)
 	cp -p $< $@
 
-$(OBJDIR)/$(LIBNAME): $(OBJDIR)/dllmain.o $(OBJDIR)/logging.o $(OBJDIR)/basics.o $(OBJDIR)/spi.o $(OBJDIR)/compat.o $(LIBRARY_DEF)
+$(OBJDIR)/$(LIBNAME): $(OBJDIR)/dllmain.o $(OBJDIR)/logging.o $(OBJDIR)/basics.o $(OBJDIR)/spi.o $(OBJDIR)/compat.o $(OBJDIR)/ftdi_common.o $(OBJDIR)/ftdi_infra.o $(OBJDIR)/ftdi_mid.o $(OBJDIR)/ftdi_spi.o $(OBJDIR)/ftdi_i2c.o $(LIBRARY_DEF)
 	mkdir -p $(OBJDIR)
 	$(LD) $(LDFLAGS) $^ -o $@ $(LDLIBS) -Wl,--out-implib,$@.a
 
